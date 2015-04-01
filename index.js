@@ -47,6 +47,11 @@ module.exports = function(mongoPath) {
                         });
                     }
                 };
+                if(typeof file.params !== "undefined") { //used for Cordova FileTransfer
+                    for(var key in params) {
+                        req.body[key] = file.params[key];
+                    }
+                }
                 next();
             });
             req.pipe(busboy);
