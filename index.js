@@ -5,13 +5,15 @@ var MongoClient = require('mongodb').MongoClient;
 var mongodb = require('mongodb');
 var Grid = require('gridfs-stream');
 
-module.exports = function(mongoPath) {
+module.exports = function(mongoPath, limits) {
     return function(req, res, next) {
         req.files = [];
+        limits = limits || {};
         if (!req.headers['content-type']) next();
         else {
             var busboy = new Busboy({
-                headers: req.headers
+                headers: req.headers,
+                limits: limits
             });
             busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
                 req.files[fieldname] = {
@@ -47,12 +49,6 @@ module.exports = function(mongoPath) {
                         });
                     }
                 };
-                console.log(file);
-                if(typeof file.params !== "undefined") { //used for Cordova FileTransfer
-                    for(var key in params) {
-                        req.body[key] = file.params[key];
-                    }
-                }
                 next();
             });
             req.pipe(busboy);
